@@ -3,6 +3,8 @@ const cors = require('cors');
 const logger = require('morgan');
 require('dotenv').config();
 
+const { dbConnection } = require('./db');
+
 
 // routes
 const indexRouter = require('./routes');
@@ -11,6 +13,10 @@ const indexRouter = require('./routes');
 const port = process.env.PORT || 3000;
 
 const app = express();
+
+// connect database
+dbConnection()
+
 app.use(cors());
 
 // middlewares
