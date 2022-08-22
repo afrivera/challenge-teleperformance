@@ -1,4 +1,7 @@
-const { Router } = require('express')
+const { Router } = require('express');
+
+// controllers
+const { post, getAll, getById, put, destroy } = require('../controllers/users');
 
 // routes
 
@@ -7,7 +10,11 @@ const { Router } = require('express')
 const router = Router();
 
 
-router.get('/', (req, res)=> {return res.json({hola: 'hola'})})
+router.get('/', getAll)
+router.get('/:id', getById)
+router.post('/', post)
+router.put('/:id', put)
+router.delete('/:id', destroy)
 
 
 module.exports = router;
