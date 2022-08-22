@@ -4,6 +4,9 @@ const logger = require('morgan');
 require('dotenv').config();
 
 
+// routes
+const indexRouter = require('./routes');
+
 // Port
 const port = process.env.PORT || 3000;
 
@@ -15,6 +18,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+
+app.use('/api', indexRouter);
 
 app.listen(port, ()=> {
     console.log(`Server running in port ${ port }`);
