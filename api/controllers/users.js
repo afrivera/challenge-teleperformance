@@ -87,8 +87,7 @@ const post = catchAsync (async(req, res, next) => {
 
         const user = new User({ name, lastName, email, password });
         const token = await generateJWT( user.id );
-
-        console.log(token)
+        
         // hash password
         const salt = bcrypt.genSaltSync();
         user.password = bcrypt.hashSync(password, salt);

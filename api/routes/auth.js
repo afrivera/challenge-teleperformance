@@ -6,7 +6,7 @@ const { user } = require('../schemas/user');
 const router = Router();
 
 router.post('/login', login );
-router.post('/', schemaValidator( user ), post)
+router.post('/register', schemaValidator( user ), post)
 
 
 module.exports = router;
