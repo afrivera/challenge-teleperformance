@@ -1,9 +1,10 @@
 const { Router } = require('express');
 
 // controllers
-const { post, getAll, getById, put, destroy } = require('../controllers/users');
+const { getAll, getById, put, destroy } = require('../controllers/users');
+const { validateJWT, isOwnerOrAdminRole } = require('../middlewares/validate-jwt');
 const { schemaValidator } = require('../middlewares/validator');
-const { user } = require('../schemas/user');
+const { idUser } = require('../schemas/user');
 
 // routes
 
@@ -13,10 +14,21 @@ const router = Router();
 
 
 router.get('/', getAll)
-router.get('/:id', getById)
-router.post('/', schemaValidator( user ), post)
-router.put('/:id', put)
-router.delete('/:id', destroy)
+router.get('/:id', [
+    validateJWT,
+    schemaValidator( idUser),
+    isOwnerOrAdminRole
+], getById)
+router.put('/:id', [
+    validateJWT,
+    schemaValidator( idUser),
+    isOwnerOrAdminRole
+], put)
+router.delete('/:id',[
+    validateJWT,
+    schemaValidator( idUser),
+    isOwnerOrAdminRole
+], destroy)
 
 
 module.exports = router;

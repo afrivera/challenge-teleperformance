@@ -18,12 +18,14 @@ const login = catchAsync (async(req, res, next ) => {
        if(!user || !validPass ){
         throw new ErrorObject('email or password incorrect', 401, )
        }
+
+       const token = await generateJWT( user.id );
        
        appSuccess({
         res,
         code: 200,
         message: 'User Login Succesfully',
-        body: user
+        body: {user, token}
        })
     } catch (error) {
         const httpError = createHttpError(
