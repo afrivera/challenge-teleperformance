@@ -1,5 +1,6 @@
 const User = require('../models/user');
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const { appSuccess } = require('../helpers/appSuccess');
 
 const login = async(req, res) => {
     try {
@@ -10,13 +11,17 @@ const login = async(req, res) => {
 
        // valid user exist and correct password 
        if(!user || !validPass ){
-        return res.json({message: 'email or password incorrect'})
+       throw new Error('email or password incorrect')
        }
-       res.json({
-        message: 'here goes token'
+       
+       appSuccess({
+        res,
+        code: 201,
+        message: 'User Login Succesfully',
+        body: user
        })
     } catch (error) {
-        console.log(error);
+       console.log(error)
     }
 }
 
@@ -24,11 +29,13 @@ const getAll = async (req, res) => {
     try {
         const users = await User.find();
 
-        res.json({
-            users
+        appSuccess({
+            res,
+            message: 'get all Users retrieved Succesfully',
+            body: users
         })
     } catch (error) {
-        console.log(error)
+       console.log(error)
     }
 }
 
@@ -36,12 +43,15 @@ const getById = async(req, res) => {
     try {
         const { id } = req.params;
         const user = await User.findById( id );
-        res.json({
-            user
+        
+        appSuccess({
+            res,
+            message: 'get User By Id retrieved Succesfully',
+            body: user
         })
 
     } catch (error) {
-        console.log(error);
+       console.log(error)
     }
 }
 
@@ -58,12 +68,13 @@ const post = async(req, res) => {
         // save user
         await user.save();
 
-        res.status(201).json({
-            message: 'User Created',
-            user
+        appSuccess({
+            res,
+            message: 'user created Succesfully',
+            body: user
         })
     } catch (error) {
-        console.log(error)
+        returnconsole.log(error)
     }
 
 }
@@ -74,11 +85,14 @@ const put = async(req, res) => {
         const { name, lastName } = req.body;
 
         const user = await User.findByIdAndUpdate( id, { name, lastName }, { new: true });
-        res.json({
-            user
+        
+        appSuccess({
+            res,
+            message: 'user update Succesfully',
+            body: user
         })
     } catch (error) {
-        console.log(error);
+       console.log(error)
     }
 }
 
@@ -87,11 +101,13 @@ const destroy = async(req, res )=> {
         const { id } = req.params;
 
         const user = await User.findByIdAndDelete( id );
-        res.json({
-            user
+        appSuccess({
+            res,
+            message: 'user deleted Succesfully',
+            body: user
         })
     } catch (error) {
-        console.log(error);
+       console.log(error)
     }
 }
 
