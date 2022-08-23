@@ -1,8 +1,12 @@
-const User = require('../models/user');
+const createHttpError = require('http-errors');
+const { catchAsync } = require('../helpers/catchAsync');
 const bcrypt = require('bcrypt');
-const { appSuccess } = require('../helpers/appSuccess');
 
-const login = async(req, res) => {
+const User = require('../models/user');
+const { appSuccess } = require('../helpers/appSuccess');
+const { ErrorObject } = require('../helpers/error');
+
+const login = catchAsync (async(req, res, next ) => {
     try {
        const { email, password } = req.body;
        
@@ -11,21 +15,25 @@ const login = async(req, res) => {
 
        // valid user exist and correct password 
        if(!user || !validPass ){
-       throw new Error('email or password incorrect')
+        throw new ErrorObject('email or password incorrect', 401, )
        }
        
        appSuccess({
         res,
-        code: 201,
+        code: 200,
         message: 'User Login Succesfully',
         body: user
        })
     } catch (error) {
-       console.log(error)
+        const httpError = createHttpError(
+            error.statusCode,
+            `[Error Retrieving Auth Login] - [auth - POST ]: ${ error.message}`
+        )
+       next( httpError )
     }
-}
+})
 
-const getAll = async (req, res) => {
+const getAll = catchAsync (async (req, res, next) => {
     try {
         const users = await User.find();
 
@@ -35,11 +43,15 @@ const getAll = async (req, res) => {
             body: users
         })
     } catch (error) {
-       console.log(error)
+        const httpError = createHttpError(
+            error.statusCode,
+            `[Error Retrieving Users] - [users - GET ]: ${ error.message}`
+        )
+       next( httpError )
     }
-}
+})
 
-const getById = async(req, res) => {
+const getById = catchAsync (async(req, res, next) => {
     try {
         const { id } = req.params;
         const user = await User.findById( id );
@@ -51,14 +63,25 @@ const getById = async(req, res) => {
         })
 
     } catch (error) {
-       console.log(error)
+        const httpError = createHttpError(
+            error.statusCode,
+            `[Error Retrieving User By Id] - [users - GET ]: ${ error.message }`
+        )
+       next( httpError )
     }
-}
+})
 
-const post = async(req, res) => {
+const post = catchAsync (async(req, res, next) => {
     const { name, lastName, email, password } = req.body;
 
     try {
+
+        // validate if email exist
+        const userDB = User.find({email});
+        if( userDB){
+            throw new ErrorObject('Email already exist in DB', 404)
+        }
+
         const user = new User({ name, lastName, email, password });
 
         // hash password
@@ -74,12 +97,16 @@ const post = async(req, res) => {
             body: user
         })
     } catch (error) {
-        returnconsole.log(error)
+        const httpError = createHttpError(
+            error.statusCode,
+            `[Error Retrieving Users] - [users - POST ]: ${ error.message}`
+        )
+       next( httpError )
     }
 
-}
+})
 
-const put = async(req, res) => {
+const put = catchAsync (async(req, res, next) => {
     try {
         const { id } = req.params;
         const { name, lastName } = req.body;
@@ -92,11 +119,15 @@ const put = async(req, res) => {
             body: user
         })
     } catch (error) {
-       console.log(error)
+        const httpError = createHttpError(
+            error.statusCode,
+            `[Error Retrieving Users] - [users - PUT ]: ${ error.message}`
+        )
+       next( httpError )
     }
-}
+})
 
-const destroy = async(req, res )=> {
+const destroy = catchAsync (async(req, res, next )=> {
     try {
         const { id } = req.params;
 
@@ -107,9 +138,13 @@ const destroy = async(req, res )=> {
             body: user
         })
     } catch (error) {
-       console.log(error)
+        const httpError = createHttpError(
+            error.statusCode,
+            `[Error Retrieving  Users] - [users - DELETE ]: ${ error.message}`
+        )
+       next( httpError )
     }
-}
+})
 
 module.exports = {
     login,
