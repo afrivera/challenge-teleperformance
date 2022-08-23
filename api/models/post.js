@@ -2,8 +2,9 @@ const { Schema, model } = require('mongoose');
 
 
 const postSchema = Schema({
-    userId: {
-        type: String,
+    userPost: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
     desc: {
@@ -11,14 +12,25 @@ const postSchema = Schema({
         required: true,
         max: 500
     },
-    likes :{
-        type: Array,
-        default: []
-    },
-    comments: {
-        type: Array,
-        default: []
-    }
+    likes :[
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        }
+    ],
+    comments: [
+        {
+            user: {
+                type: Schema.Types.ObjectId,
+                ref: 'User'
+            },
+            comments : {
+                type: String,
+                required: true,
+                trim: true
+            }
+        }
+    ]
     
 },{
     timestamps: true
