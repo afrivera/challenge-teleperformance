@@ -1,6 +1,24 @@
 const User = require('../models/user');
 const bcrypt = require('bcrypt')
 
+const login = async(req, res) => {
+    try {
+       const { email, password } = req.body;
+       
+       const user = await User.findOne({ email });
+       const validPass = user && bcrypt.compareSync( password, user.password );
+
+       // valid user exist and correct password 
+       if(!user || !validPass ){
+        return res.json({message: 'email or password incorrect'})
+       }
+       res.json({
+        message: 'here goes token'
+       })
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 const getAll = async (req, res) => {
     try {
@@ -78,6 +96,7 @@ const destroy = async(req, res )=> {
 }
 
 module.exports = {
+    login,
     getAll,
     getById,
     post,
