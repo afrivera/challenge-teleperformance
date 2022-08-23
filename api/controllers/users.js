@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const User = require('../models/user');
 const { appSuccess } = require('../helpers/appSuccess');
 const { ErrorObject } = require('../helpers/error');
+const { generateJWT } = require('../helpers/jwt');
 
 const login = catchAsync (async(req, res, next ) => {
     try {
@@ -77,13 +78,15 @@ const post = catchAsync (async(req, res, next) => {
     try {
 
         // validate if email exist
-        const userDB = User.find({email});
+        const userDB = await User.findOne({ email });
         if( userDB){
             throw new ErrorObject('Email already exist in DB', 404)
         }
 
         const user = new User({ name, lastName, email, password });
+        const token = await generateJWT( user.id );
 
+        console.log(token)
         // hash password
         const salt = bcrypt.genSaltSync();
         user.password = bcrypt.hashSync(password, salt);
@@ -94,7 +97,7 @@ const post = catchAsync (async(req, res, next) => {
         appSuccess({
             res,
             message: 'user created Succesfully',
-            body: user
+            body: {user, token},
         })
     } catch (error) {
         const httpError = createHttpError(
