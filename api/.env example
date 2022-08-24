@@ -1,0 +1,8 @@
+# Server
+PORT=4000
+
+# Database: CDN de la base de datos de mongo
+MONGODB_CNN=
+
+# JWT: secreto para codificar token
+JWT_SECRET=
