@@ -1,7 +1,7 @@
 const { Router } = require('express');
 
 // controllers
-const { getAll, getById, put, destroy, post } = require('../controllers/posts');
+const { getAll, getById, put, destroy, post, postComment, likeOrUnlikePost } = require('../controllers/posts');
 const { validateJWT, isOwnerOrAdminRole } = require('../middlewares/validate-jwt');
 const { schemaValidator } = require('../middlewares/validator');
 const { idUser } = require('../schemas/user');
@@ -17,8 +17,7 @@ router.get('/', getAll)
 
 router.get('/:id', [
     validateJWT,
-    schemaValidator( idUser),
-    isOwnerOrAdminRole
+    schemaValidator( idUser)
 ], getById)
 
 router.post('/', validateJWT, post)
@@ -34,6 +33,15 @@ router.delete('/:id',[
     schemaValidator( idUser),
     isOwnerOrAdminRole
 ], destroy)
+
+router.post('/comments/:id',[
+    validateJWT,
+    schemaValidator( idUser)
+], postComment)
+router.post('/likes/:id',[
+    validateJWT,
+    schemaValidator( idUser)
+], likeOrUnlikePost)
 
 
 module.exports = router;

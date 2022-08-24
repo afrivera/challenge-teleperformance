@@ -9,7 +9,8 @@ const { ErrorObject } = require('../helpers/error');
 
 const getAll = catchAsync (async (req, res, next) => {
     try {
-        const posts = await Post.find();
+        const posts = await Post.find()
+                        .populate('userPost', 'name lastName')
 
         appSuccess({
             res,
@@ -28,7 +29,8 @@ const getAll = catchAsync (async (req, res, next) => {
 const getById = catchAsync (async(req, res, next) => {
     try {
         const { id } = req.params;
-        const post = await Post.findById( id );
+        const post = await Post.findById( id )
+                        .populate('userPost', 'name lastName updatedAt')
         
         appSuccess({
             res,
@@ -134,10 +136,88 @@ const destroy = catchAsync (async(req, res, next )=> {
     }
 })
 
+// add comment to post
+const postComment = catchAsync( async(req, res, next )=> {
+    try {
+        const { id } = req.params;
+        const { comments } = req.body
+        console.log(id)
+        const post = await Post.findById( id );
+
+        // if post doesn't exist
+        if(!post){
+            throw new ErrorObject('post Not Found', 404);
+        }
+
+        post.comments.push({
+            user: req.uid,
+            comments
+        })
+
+        await post.save();
+
+        appSuccess({
+            res,
+            message: 'Comment added to post',
+            body: post
+        })
+
+    } catch (error) {
+        const httpError = createHttpError(
+            error.statusCode,
+            `[Error Retrieving  Posts] - [Posts - DELETE ]: ${ error.message}`
+        )
+       next( httpError );
+    }
+})
+
+// like or unlike post
+const likeOrUnlikePost = catchAsync( async(req, res, next )=> {
+    try {
+        const { id } = req.params;
+        const post = await Post.findById( id );
+        const userId = req.uid;
+
+        // if post doesn't exist
+        if(!post){
+            throw new ErrorObject('post Not Found', 404);
+        }
+
+        if( post.likes.includes( userId )){
+            const i = post.likes.indexOf( userId );
+            post.likes.splice( i, 1);
+            await post.save();
+
+            return appSuccess({
+                res,
+                message: 'Post unliked',
+                body: post
+            })
+        } else {
+            post.likes.push( userId );
+            await post.save();
+            return appSuccess({
+                res,
+                message: 'Post Liked',
+                body: post
+            })
+        }
+
+    } catch (error) {
+        const httpError = createHttpError(
+            error.statusCode,
+            `[Error Retrieving  Posts] - [Posts - DELETE ]: ${ error.message}`
+        )
+       next( httpError );
+    }
+})
+
 module.exports = {
     getAll,
     getById,
     post,
     put,
-    destroy
+    destroy,
+    postComment,
+    likeOrUnlikePost
 };

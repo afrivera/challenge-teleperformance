@@ -16,8 +16,7 @@ const router = Router();
 router.get('/', getAll)
 router.get('/:id', [
     validateJWT,
-    schemaValidator( idUser),
-    isOwnerOrAdminRole
+    schemaValidator( idUser)
 ], getById)
 router.put('/:id', [
     validateJWT,
