@@ -38,7 +38,8 @@ const login = catchAsync (async(req, res, next ) => {
 
 const getAll = catchAsync (async (req, res, next) => {
     try {
-        const users = await User.find();
+        const users = await User.find()
+                            .populate('posts', 'desc likes comments')
 
         appSuccess({
             res,
@@ -57,7 +58,8 @@ const getAll = catchAsync (async (req, res, next) => {
 const getById = catchAsync (async(req, res, next) => {
     try {
         const { id } = req.params;
-        const user = await User.findById( id );
+        const user = await User.findById( id )
+                            .populate('posts')
         
         appSuccess({
             res,

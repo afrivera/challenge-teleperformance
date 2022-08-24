@@ -1,8 +1,8 @@
 const createHttpError = require('http-errors');
 const { catchAsync } = require('../helpers/catchAsync');
-const bcrypt = require('bcrypt');
 
 const Post = require('../models/post');
+const User = require('../models/user');
 const { appSuccess } = require('../helpers/appSuccess');
 const { ErrorObject } = require('../helpers/error');
 
@@ -47,14 +47,17 @@ const getById = catchAsync (async(req, res, next) => {
 
 const post = catchAsync (async(req, res, next) => {
     const { desc } = req.body;
-    const userId = req.uid
+    const userPost = req.uid
 
     try {
 
-        const post = new Post({ userId, desc });
+        const post = new Post({ userPost, desc });
+
+        const user = await User.findById( userPost )
+        user.posts.push(post._id)
 
         // save Post
-        await post.save();
+        await Promise.all([post.save()], user.save())
 
         appSuccess({
             res,
